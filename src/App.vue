@@ -1,26 +1,31 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js Appbabuya"/>
+  <v-app ref="app">
+    <v-app-bar color="grey-lighten-2" name="app-bar" class="justify-center">
+      <div class="d-flex justify-center align-center w-100">
+        <v-btn @click="print('app-bar')">Get data</v-btn>
+      </div>
+    </v-app-bar>
+    <v-navigation-drawer color="grey-darken-2" permanent name="drawer">
+      <div class="d-flex justify-center align-center h-100">
+        <v-btn @click="print('drawer')">Get data</v-btn>
+      </div>
+    </v-navigation-drawer>
+    <v-main>
+      <v-card height="200px"></v-card>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "App",
+  data: () => ({
+    layout: null,
+  }),
+  methods: {
+    print(key) {
+      alert(JSON.stringify(this.$refs.app.getLayoutItem(key), null, 2));
+    },
+  },
+};
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
