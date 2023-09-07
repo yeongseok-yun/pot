@@ -1,18 +1,52 @@
 <template>
-    <v-sheet>
+    <v-layout class="rounded rounded-md" v-if = "loginCheck">
+        <v-app-bar  rounded>
+        <v-app-bar-nav-icon
+        variant="text"
+        @click.stop="drawer = !drawer"
+        ></v-app-bar-nav-icon>
+        </v-app-bar>
+        <v-navigation-drawer
+        v-model="drawer"
+        >
+        <v-list>
+            
+         <router-link class="navbar-brand" :to="{name : 'Test'}">
+            <v-list :items="items"></v-list>
+        </router-link>
+        </v-list>
+        
+        </v-navigation-drawer>
+
+        <v-main class="d-flex align-center justify-center" style="min-height: 300px;">
+        
+            <router-view/>
+
+
+        </v-main>
+     </v-layout>
+
+
+
+
+    <v-sheet v-else>
+        
         <v-sheet class="ma-2 pa-2" height="25dvh"></v-sheet>
         <v-sheet width="300" class="mx-auto pa-5 elevation-5" >
         <v-form ref="form" >
             <v-text-field
-            v-model="name"
-            :counter="10"
-            :rules="nameRules"
+            v-model="loginId"
             label="Name"
+            :rules="[() => !!loginId || 'This field is required']"
             required
             ></v-text-field>
             <v-text-field
+            v-model="loginPassword"
             type="password"
-            label="Password">
+            label="Password"
+            :rules="[() => !!loginPassword || 'This field is required']"
+            required
+            >
                 
             </v-text-field>
             <!-- <v-select
@@ -58,7 +92,35 @@
                 Help
             </v-btn>
             </div>
+            <v-dialog v-model="loginDialog" persistent width="40vh">
+                <v-alert
+                justify="center"
+                width = 40vh
+                type="error"
+                title="Login failed!!"
+                text="Please check you Id or Password"
+                >
+                    <div
+                        style ="text-align: -webkit-right;">
+                        <v-btn
+                            class=""
+                            color="medium-white"
+                            min-width="40"
+                            rounded
+                            variant="tonal"
+                            @click="initAll()"
+                        >
+                            Ok
+                        </v-btn>
+                    </div>
+                </v-alert>
+            </v-dialog>
         </v-form>
+
+            
+
+
+
         </v-sheet>
         <v-sheet class="ma-2 pa-2" height="15dvh"></v-sheet>
     </v-sheet>
@@ -136,12 +198,43 @@
                     Request Join
                 </v-btn>
                 </v-card-actions>
+
+                <div class="d-flex justify-center mb-6 bg-surface-variant" v-if = "joinAlertNum == 1">
+                    <v-dialog v-model="dialog" persistent width="40vh">
+                        <v-alert
+                            justify="center"
+                            
+                            width = 30vh
+                            type="success"
+                            title="Join Complete"
+                            text="Please try login"
+                        >
+                        <div
+                         style ="text-align: -webkit-right;">
+                            <v-btn
+                                class=""
+                                color="medium-white"
+                                min-width="40"
+                                rounded
+                                variant="tonal"
+                                @click="initAll()"
+                            >
+                                Ok
+                            </v-btn>
+                        </div>
+                        </v-alert>
+                    </v-dialog>
+                </div>
             </v-card>
+
+
+            
+
         </v-dialog>
     </v-row>
 
 
-
+    
 
 
 
@@ -149,16 +242,62 @@
     
 <script>
 import {ref} from 'vue';
+import axios from 'axios';
+//import {useRouter} from 'vue-router';
 export default {
     
     setup(){
+        
+        //alert(sessionStorage.getItem('loginCheck'))
+        // if(sessionStorage.getItem('loginCheck')){
+
+        // }
+        const drawer = ref(true);
+        const items = ref(['메뉴1','메뉴2','메뉴3','메뉴4'])
+        const loginCheck = ref(true);
+        //const router = useRouter();
+        const loginId = ref('');
+        const loginPassword = ref('');
+        const joinAlertNum = ref(0);
         const insertPassword1 = ref('');
         const insertPassword2 = ref('');
         const insertId = ref('');
         const insertNickName = ref('');
         const dialog = ref(false);
+        const loginDialog = ref(false);
+        const initAll = () => {
+            loginDialog.value = false
+            joinAlertNum.value = 0
+            dialog.value = false
+            insertPassword1.value = ''
+            insertPassword2.value = ''
+            insertId.value = ''
+            insertNickName.value = ''
+        }
         const validate = () =>{
-            alert('')
+            let errFlag = true
+            loginId.value == '' ? errFlag = false : console.log(1)
+            loginPassword.value == '' ? errFlag = false : console.log(3)
+
+            if(errFlag){
+                axios.post("/login",{
+                    id : loginId.value,
+                    password : loginPassword.value
+                }).then((res)=> {
+                    console.log(res)
+                    if(res.data == 0){
+                        loginDialog.value = true
+                    }else{
+                        loginCheck.value = true
+                    }
+                }).catch((res)=> {
+                    console.log(res)
+                    loginDialog.value = true
+                })
+            }else{
+                //loginAlertNum.value = 1
+                loginDialog.value = true
+            }
         }
         const pwdMatchCheck = () => {
             
@@ -166,16 +305,39 @@ export default {
         }
         const requestJoin = () => {
             let errFlag = true
-            !insertId.value || insertId.value.length < 8 ? errFlag = !errFlag : console.log(1)
-            !insertNickName.value || insertNickName.value.length < 5 ? errFlag = !errFlag : console.log(2)
-            !insertPassword1.value || insertPassword1.value.length < 10 ? errFlag = !errFlag : console.log(3)
-            !insertPassword2.value || insertPassword2.value.length < 10 ? errFlag = !errFlag : console.log(4)
-            insertPassword1.value !== insertPassword2.value ? errFlag = !errFlag : console.log(5)
+            insertId.value || insertId.value.length < 8 ? errFlag = false: console.log(1)
+            insertNickName.value || insertNickName.value.length < 5 ? errFlag = false : console.log(2)
+            insertPassword1.value || insertPassword1.value.length < 10 ? errFlag = false : console.log(3)
+            insertPassword2.value || insertPassword2.value.length < 10 ? errFlag = false : console.log(4)
+            insertPassword1.value !== insertPassword2.value ? errFlag = false : console.log(5)
 
-            errFlag == true ? alert('go') : alert('no go ')
+            //errFlag == true ? alert('go') : alert('no go ')
+            if(errFlag){
+                axios.post("/join",{
+                    id : insertId.value,
+                    nickName : insertNickName.value,
+                    password : insertPassword1.value
+
+                }).then((res)=> {
+                    console.log(res)
+                    if(res.data == 0){
+                        joinAlertNum.value = 1
+                    }
+                }).catch((res)=> {
+                    console.log(res)
+                })
+            }
         }
 
         return {
+            drawer,
+            items,
+            loginCheck,
+            loginDialog,
+            loginPassword,
+            loginId,
+            initAll,
+            joinAlertNum,
             pwdMatchCheck,
             insertPassword1,
             insertPassword2,
