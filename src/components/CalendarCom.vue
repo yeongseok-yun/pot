@@ -3,6 +3,7 @@
   
   :snap-to-time="30"
   editable-events
+  
   :on-event-create="onEventCreate"
   @event-drag-create="showEventCreationDialog = true"
   :disable-views="['years', 'year']"
