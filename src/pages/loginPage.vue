@@ -1,6 +1,8 @@
 <template>
     <v-layout class="rounded rounded-md" v-if = "loginCheck">
-        <v-app-bar  rounded>
+        <v-app-bar
+        class="bg-blue-lighten-4"
+        rounded>
         <v-app-bar-nav-icon
         variant="text"
         @click.stop="drawer = !drawer"
@@ -8,20 +10,42 @@
         </v-app-bar>
         <v-navigation-drawer
         v-model="drawer"
+        class="bg-blue-lighten-5"
+        
         >
-        <v-list>
+        <v-list color="transparent"> 
+            <v-list-item
+                    v-for="(item, i) in items"
+                    :key="i"
+                    :value="item"
+                    color=""
+            >
+                <v-list-item-title @click="dispCom">
+                    {{ item.menuLable }}
+                </v-list-item-title>
+            </v-list-item>
+        </v-list>
+        <v-list color="transparent"> 
             
-         <router-link class="navbar-brand" :to="{name : 'Test'}">
-            <v-list :items="items"></v-list>
-        </router-link>
+        <!-- <router-link class="navbar-brand" :to="{name : 'Test'}"> -->
+            <!-- <v-list :items="items"></v-list> -->
+            
+            
+            <!-- <v-list-item>
+                <v-list :items="items.menuLable" :click="dispCom">
+                    
+                </v-list>
+            </v-list-item> -->
+        <!-- </router-link> -->
         </v-list>
         
         </v-navigation-drawer>
 
         <v-main class="d-flex align-center justify-center" style="min-height: 300px;">
         
-            <router-view/>
-
+                    <!-- <CalendarCom/>
+                    <TodoCom/> -->
+            <component :is="selectedComponent"></component>
 
         </v-main>
      </v-layout>
@@ -241,19 +265,45 @@
   </template>
     
 <script>
-import {ref} from 'vue';
+import {ref,shallowRef  } from 'vue';
 import axios from 'axios';
+import CalendarCom from '@/components/CalendarCom.vue';
+import TodoCom from '@/components/TodoCom.vue';
 //import {useRouter} from 'vue-router';
 export default {
-    
+    components: {
+        CalendarCom,
+        TodoCom,
+    },
     setup(){
         
         //alert(sessionStorage.getItem('loginCheck'))
         // if(sessionStorage.getItem('loginCheck')){
 
         // }
+        //변수
+        const selectedComponent = shallowRef(null);
         const drawer = ref(true);
-        const items = ref(['메뉴1','메뉴2','메뉴3','메뉴4'])
+        const items = ref(
+            [
+                {
+                    menuLable : 'Cal',
+                    componentsName : 'CalendarCom'
+                },
+                {
+                    menuLable : 'Todo1',
+                    componentsName : 'TodoCom'
+                },
+                {
+                    menuLable : 'Todo2',
+                    componentsName : 'TodoCom'
+                },
+                {
+                    menuLable : '메뉴4',
+                    componentsName : 'TodoCom'
+                }
+            ]
+        )
         const loginCheck = ref(true);
         //const router = useRouter();
         const loginId = ref('');
@@ -265,6 +315,15 @@ export default {
         const insertNickName = ref('');
         const dialog = ref(false);
         const loginDialog = ref(false);
+
+
+        //func
+        const dispCom = (obj) => {
+            const indexOfCal = items.value.findIndex(item => item.menuLable === obj.srcElement.textContent);
+            console.log(items.value)
+            selectedComponent.value = items.value[indexOfCal].componentsName
+            console.log(selectedComponent)
+        }
         const initAll = () => {
             loginDialog.value = false
             joinAlertNum.value = 0
@@ -330,6 +389,8 @@ export default {
         }
 
         return {
+            selectedComponent,
+            dispCom,
             drawer,
             items,
             loginCheck,
