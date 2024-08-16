@@ -1,7 +1,14 @@
 <template>
   <v-flex>
     <v-div>
-        <h1>Coming soon! D - {{ dDay }}</h1>
+        <v-div v-if = "dDay > 0">
+            <h1>Coming soon! D - {{ dDay }}</h1>
+            <span>이 페이지는 2024년 9월 15일 00시 01분 01초 부터 공개됩니다.</span>
+        </v-div>
+        <v-div v-else>
+            <iframe src="http://localhost:8501" style="width:100%; height:100vh; border:none;"></iframe>
+        </v-div>
+        
     </v-div>
   </v-flex>
 </template>
@@ -17,7 +24,7 @@ export default {
 
         const calculDday = () =>{
             const currentDate = new Date();
-            const inputDate = new Date('2024-09-16');
+            const inputDate = new Date('2024-08-16');
 
             // 두 날짜 간의 차이 계산 (밀리초)
             const timeDiff = inputDate - currentDate;
